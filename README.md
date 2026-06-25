@@ -65,6 +65,22 @@ git init && git add . && git commit -m "Initial commit"
 gh repo create design-decoder --public --source=. --push   # or add a remote manually
 ```
 
+## Deploy to Vercel
+
+The same code runs on Vercel — the `public/` folder is served statically and the
+backend runs as Python serverless functions in `api/` (`api/analyze.py`,
+`api/health.py`). `vercel.json` wires the routes and timeouts.
+
+1. Push this repo to GitHub and import it in Vercel (or run `vercel`).
+2. In **Project → Settings → Environment Variables**, add `GEMINI_API_KEY` (the
+   `.env` file is **not** deployed). Redeploy after adding it.
+3. That's it — open the deployment URL.
+
+> ⚠️ **Cost note:** if you set `GEMINI_API_KEY` on a *public* URL, anyone who visits
+> can run analyses on your key/quota. Either leave the server key unset and let each
+> visitor paste their own key (via the **API key** button in the UI), or put the
+> deployment behind Vercel access protection.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

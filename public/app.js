@@ -183,17 +183,35 @@
     els.analyzeBtn.disabled = true;
 
     try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          image: state.base64,
-          media_type: state.mediaType,
-          api_key: getKey(),
-          model: els.modelSelect.value,
-        }),
-      });
-      const data = await res.json();
+      let res;
+      try {
+        res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            image: state.base64,
+            media_type: state.mediaType,
+            api_key: getKey(),
+            model: els.modelSelect.value,
+          }),
+        });
+      } catch {
+        throw new Error("Couldn't reach the server. Is it running? (python3 server.py)");
+      }
+
+      // The API always replies with JSON; if it didn't, the server is down or a
+      // proxy returned an HTML error page — give a clear message, not a parse error.
+      const raw = await res.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(
+          res.status === 404
+            ? "Server reached, but /api/analyze wasn't found. Restart the server (python3 server.py)."
+            : "The server returned an unexpected (non-JSON) response. It may have stopped — restart it (python3 server.py)."
+        );
+      }
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
       renderResult(data);
       showView("result");

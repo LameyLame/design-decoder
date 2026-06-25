@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/analyze.py": { "maxDuration": 60 },
+    "api/health.py": { "maxDuration": 10 }
+  },
+  "rewrites": [
+    { "source": "/health", "destination": "/api/health" }
+  ]
+}
